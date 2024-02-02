@@ -7,12 +7,12 @@ resource "terraform_data" "clusterConfigutration" {
 
 resource "terraform_data" "installIngress" {
   provisioner "local-exec" {
-    command = "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml"
+    command = "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/aws/deploy.yaml" 
   }
-  depends_on = [terraform_data.clusterConfigutration]
-
-  
+  depends_on = [aws_eks_addon.addons]
 }
+
+
 resource "helm_release" "argocd" {
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
@@ -36,17 +36,6 @@ resource "terraform_data" "ApplyIngress" {
   
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+resource "aws_route53_zone" "primary" {
+  name = "devops-prod.com"
+}

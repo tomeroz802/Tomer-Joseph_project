@@ -2,7 +2,6 @@ name: Project-DevOps
 on: push
 jobs:
  CI-Build-Test-Push:
-    #needs: CD-Terraform
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -78,8 +77,8 @@ jobs:
 
 
  CD-Terraform:
-    #needs: Snyk-security
-    runs-on: ubuntu-latest
+    needs: Snyk-security
+    runs-on: self-hosted
     environment: production
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -88,62 +87,33 @@ jobs:
         shell: bash
 
     steps:
-    #- name: Checkout Repo
-    #  uses: actions/checkout@v3
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-west-3
-        role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-        #role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
-        role-duration-seconds: 1200
-        role-session-name: Terraform-jo-role
+    # Checkout the repository to the GitHub Actions runner
+    - name: go to dir-file 
+      run: cd ~/learn-terraform-provision-eks-cluster/
 
-    - name: Checkout Repository
-      run: git clone https://github.com/lordagam/terraform-aws-eks-work-jo.git && cd terraform-aws-eks-work-jo
-
-    - name:  Test
-      run: |
-        sudo apt-get update; cd terraform-aws-eks-work-jo && ls -alh && terraform init && terraform apply -auto-approve && terraform destroy -auto-approve
-
-
-  #  - name: cd terraform-aws-eks-work-jo
-  #    run: cd terraform-aws-eks-work-jo
-      
-  #  - name: show the file of dir
-  #    run: ls -alh 
-    
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-   # - name: Setup Terraform
-   #   uses: hashicorp/setup-terraform@v1
-   #   with:
-   #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    #- name: Setup Terraform
+    #  uses: hashicorp/setup-terraform@v1
+    #  with:
+    #    cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    #- name: terraform init
-    #  run:  terraform init
+    - name: terraform init
+      run:  terraform init
 
     # Checks that all Terraform configuration files adhere to a canonical format
-    #- name: terraform validate
-    #  run: terraform validate
-   
-    #- name: show the file of dir(test)
-    #  run: ls -alh 
+    - name: terraform validate
+      run: terraform validate
 
     # Generates an execution plan for Terraform
-    #- name: Terraform Plan
-      #if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-     # run: terraform plan
-        
-      
+    - name: Terraform Plan
+      run: terraform plan
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     #- name: Terraform Apply
-    #  if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-    #  run: terraform apply -auto-approve -input=false
+      #if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      #run: terraform apply -auto-approve -input=false
 
 
  Notification-to-mail:

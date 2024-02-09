@@ -91,6 +91,9 @@ jobs:
     - name: go to dir-file 
       run: cd /home/ec2-user/tomer-actions-runner/Tomer-Joseph_project/
 
+    - name: pwd
+      run: pwd 
+
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     #- name: Setup Terraform
     #  uses: hashicorp/setup-terraform@v1

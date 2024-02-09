@@ -14,7 +14,7 @@ jobs:
           sudo apt-get update; sudo apt-get install -y curl && curl http://localhost:3000 && docker ps
 
       - name: change image name
-        run: docker tag mariadb:10.6.4-focal   tomeroz802/project-test:mariadb && docker tag tomer-joseph_project-test_backend  tomeroz802/project-test:backend && docker tag tomer-joseph_project-test_frontend  tomeroz802/project-test:frontend
+        run: docker tag mariadb:10.6.4-focal  tomeroz802/project:mariadb && docker tag tomer-joseph_project_backend  tomeroz802/project:backend && tomer-joseph_project_frontend  tomeroz802/project:frontend
         
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -23,7 +23,7 @@ jobs:
             password: ${{ secrets.DOCKERHUB_TOKEN }}
      
       - name: docker push
-        run: docker push tomeroz802/project-test:mariadb && docker push tomeroz802/project-test:backend && docker push tomeroz802/project-test:frontend
+        run: docker push tomeroz802/project:mariadb && docker push tomeroz802/project:backend && docker push tomeroz802/project:frontend
 
       #- name: Run curl
        # run: |

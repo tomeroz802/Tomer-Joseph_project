@@ -1,0 +1,156 @@
+name: Project-DevOps
+on: push
+jobs:
+ CI-Build-Test-Push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose up -d
+      
+      
+      - name: Run curl Test
+        run: |
+          sudo apt-get update; sudo apt-get install -y curl && curl http://localhost:3000 && docker ps
+
+      - name: change image name
+        run: docker tag mariadb:10.6.4-focal   lordagam/project-test:mariadb && docker tag tomer-joseph_project-test_backend  lordagam/project-test:backend && docker tag tomer-joseph_project-test_frontend  lordagam/project-test:frontend
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+     
+      - name: docker push
+        run: docker push lordagam/project-test:mariadb && docker push lordagam/project-test:backend && docker push lordagam/project-test:frontend
+
+      #- name: Run curl
+       # run: |
+        #  curl http://localhost:3000
+
+      #- name: Snyk example
+      #- uses: actions/checkout@master
+      #- uses: snyk/actions/setup@master
+      #- uses: actions/setup-go@v1
+      #  with:
+      #    go-version: '1.13'
+     
+ Snyk-security:
+    needs: CI-Build-Test-Push
+    runs-on: ubuntu-latest
+    steps:          
+      - name: Snyk Infrastructure as Code scan
+        id: snyk-iac-scan
+        uses: Gershon-A/snyk-iac-code-security-checks@v1.0.1
+        continue-on-error: true
+        with:
+          SNYK_TOKEN: ${{ secrets.SNYKTOKEN }}
+          SEVERITY_THRESHOLD: "critical"
+          FILE: "example-*"
+          update_pr_with_scan_results: true
+
+
+
+
+      #- name: Run Snyk to check Docker image for vulnerabilities
+      #  uses: snyk/actions/docker@master
+      #  env:
+      #    SNYK_TOKEN: ${{ secrets.SNYKTOKEN }}
+      #  with:
+      #    image: lordagam/Tomer-Joseph_project-test
+
+
+  
+  #    - name: change image name 
+   #     run: docker tag my-image-name:latest lordagam/github-repo-hello-world-war5:latest
+   #   - name: Login to Docker Hub
+   #     uses: docker/login-action@v2
+   #     with:
+   #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+   #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+   #   - name: docker-compose push
+   #     run: docker-compose push lordagam/project-test
+  #     #run: docker push lordagam/project_jo_tomer:frontend
+        #run: docker push lordagam/project_jo_tomer:backend
+        #run: docker push lordagam/project_jo_tomer:mariadb
+
+
+ CD-Terraform:
+    needs: Snyk-security
+    runs-on: self-hosted
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: go to dir-file 
+      run: cd ~/learn-terraform-provision-eks-cluster/
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    #- name: Setup Terraform
+    #  uses: hashicorp/setup-terraform@v1
+    #  with:
+    #    cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: terraform init
+      run:  terraform init
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: terraform validate
+      run: terraform validate
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan
+
+      # On push to "main", build or change infrastructure according to Terraform configuration files
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+    #- name: Terraform Apply
+      #if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      #run: terraform apply -auto-approve -input=false
+
+
+ Notification-to-mail:
+    needs: CD-Terraform 
+    runs-on: ubuntu-latest
+    steps:
+   #   - name: 'Notify users on file change'
+      - uses: danthe1st/email-filechange-notif-action@v1
+        with: 
+#          # Address to send E-Mails from
+         senderEmail: ${{ secrets.SENDER_EMAIL }}
+#          # optional, The subject of the E-Mails to send
+         subjectLine: 'GitHub Test Notification'
+#          # A file in the repository or HTTP address that contains file patterns with E-Mail addresses that should be notified on file changes
+         mailingList: ${{ secrets.MAILING_LIST }}
+#          # The SMTP server used to send E-Mails
+         smtpServer: ${{ secrets.SMTP_SERVER }}
+#          # optional, The SMTP port used to send E-Mails
+         smtpPort: 587
+#          # The SMTP user name used to send E-Mails
+         smtpUsername: ${{ secrets.SMTP_USER }}
+#          # The SMTP password used to send E-Mails
+         smtpPassword: ${{ secrets.SMTP_PASSWORD }}
+
+
+
+
+
+ slack-Notification:
+   name: Slack Notification 
+   needs: CD-Terraform 
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@master
+     - name: Slack Notification 
+       uses: bryannice/gitactions-slack-notification@2.0.0
+       env:
+        SLACK_INCOMING_WEBHOOK: ${{ secrets.SLACK_INCOMING_WEBHOOK }}
+        SLACK_MESSAGE: 'Demo''ing the Slack Notification'
+        SLACK_TITLE: 'Slack Notification '

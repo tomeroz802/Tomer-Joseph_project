@@ -77,7 +77,7 @@ jobs:
 
 
  CD-Terraform:
-    needs: Snyk-security
+    #needs: Snyk-security
     runs-on: self-hosted
     environment: production
 

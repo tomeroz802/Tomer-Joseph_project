@@ -107,10 +107,6 @@ jobs:
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: terraform validate
       run: terraform validate
-
-      
-    - name: test1
-      run: echo "test 1"
       
     # Generates an execution plan for Terraform
     - name: Terraform Plan
@@ -148,9 +144,6 @@ jobs:
          smtpUsername: ${{ secrets.SMTP_USER }}
 #          # The SMTP password used to send E-Mails
          smtpPassword: ${{ secrets.SMTP_PASSWORD }}
-
-
-
 
 
  slack-Notification:

@@ -121,8 +121,12 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false
       #if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+    - name: issue-prod-argocd
+      run: kubectl apply -f issue-prod-argocd.yaml
 
-
+    - name: argo-ingress
+      run: kubectl apply -f argo-ingress.yaml
+      
  Notification-to-mail:
     needs: CD-Terraform 
     runs-on: ubuntu-latest

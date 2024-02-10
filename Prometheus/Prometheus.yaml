@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: prometheus
-  namespace: Prometheus
+  namespace: prometheus
 spec:
   project: default
   source:

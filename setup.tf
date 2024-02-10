@@ -20,7 +20,6 @@ resource "terraform_data" "ns-cert-manager" {
 }
 
 
-
 resource "helm_release" "cert-manager" {
   name       = "cert-manager"
   namespace = "cert-manager"
@@ -38,6 +37,21 @@ resource "helm_release" "cert-manager" {
   }
   depends_on = [terraform_data.ns-cert-manager]
 }
+
+resource "terraform_data" "issue-prod-argocd"{
+  provisioner "local-exec"{
+    command = "kubectl apply -f issue-prod-argocd.yaml"
+  }
+  depends_on = [helm_release.cert-manager]
+}
+
+resource "terraform_data" "argo-ingress"{
+  provisioner "local-exec"{
+    command = "kubectl apply -f argo-ingress.yaml"
+  }
+  depends_on = [terraform_data.issue-prod-argocd]
+}
+
 
 resource "helm_release" "argocd" {
   name             = "argocd"

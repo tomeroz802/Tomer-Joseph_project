@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: Prometheus-ui
+  namespace: Prometheus
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod"
+    ingress.kubernetes.io/proxy-body-size: 100M
+    ingress.kubernetes.io/app-root: "/"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - Prometheus.tomer-aws-project.online
+  rules:
+  - host: Prometheus.tomer-aws-project.online
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-service
+            port:
+              name: http

@@ -108,6 +108,10 @@ jobs:
     - name: terraform validate
       run: terraform validate
 
+      
+    - name: test1
+      run: echo "test 1"
+      
     # Generates an execution plan for Terraform
     - name: Terraform Plan
       run: terraform plan

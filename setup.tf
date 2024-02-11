@@ -1,6 +1,6 @@
 resource "terraform_data" "clusterConfigutration" {
   provisioner "local-exec" {
-    command = "aws eks --region ap-northeast-3 update-kubeconfig --name eks-cluster"
+    command = "aws eks --region ap-northeast-1 update-kubeconfig --name eks-cluster"
   }
   depends_on = [aws_eks_cluster.eks-cluster  ]
 }

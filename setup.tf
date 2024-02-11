@@ -19,7 +19,6 @@ resource "terraform_data" "ns-cert-manager" {
   depends_on = [terraform_data.installIngress]
 }
 
-
 resource "helm_release" "cert-manager" {
   name       = "cert-manager"
   namespace = "cert-manager"
@@ -48,8 +47,4 @@ resource "helm_release" "argocd" {
   values           = [file("values/argocd.yaml")]
 
   depends_on = [ terraform_data.installIngress]
-}
-
-resource "aws_route53_zone" "primary" {
-  name = "devops-prod.com"
 }

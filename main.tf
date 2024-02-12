@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_context_cluster   = "eks-cluster"
+  config_context_cluster   = aws_eks_cluster.eks-cluster.id
   load_config_file         = false
 }
 

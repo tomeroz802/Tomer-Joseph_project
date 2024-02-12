@@ -1,6 +1,6 @@
 provider "kubernetes" {
   config_context_cluster   = aws_eks_cluster.eks-cluster.id
-  load_config_file         = false
+  kubeconfig               = "~/.kube/config"
 }
 
 resource "kubernetes_config_map" "aws_auth" {

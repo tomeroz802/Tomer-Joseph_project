@@ -1,3 +1,33 @@
+provider "kubernetes" {
+  config_context_cluster   = "eks-cluster"
+  load_config_file         = false
+}
+
+resource "kubernetes_config_map" "aws_auth" {
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    mapRoles = <<EOF
+      - groups:
+        - system:bootstrappers
+        - system:nodes
+        rolearn: arn:aws:iam::343568180534:role/EKSNodeGroupRole
+        username: system:node:{{EC2PrivateDNSName}}
+    EOF
+
+    mapUsers = <<EOF
+      - groups:
+        - system:masters
+        userarn: arn:aws:iam::343568180534:user/aws16
+        username: aws16
+    EOF
+  }
+}
+
+
 module "aws_vpc" {
   source          = "github.com/erozedguy/AWS-VPC-terraform-module.git?ref=v0.1.0"
   networking      = var.networking

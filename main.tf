@@ -1,8 +1,3 @@
-provider "kubernetes" {
-  config_context_cluster   = aws_eks_cluster.eks-cluster.id
-  kubeconfig               = "~/.kube/config"
-}
-
 resource "kubernetes_config_map" "aws_auth" {
   metadata {
     name      = "aws-auth"

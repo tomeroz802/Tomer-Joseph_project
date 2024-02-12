@@ -89,7 +89,7 @@ jobs:
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: go to dir-file 
-      run: cd /home/ec2-user/tomer-actions-runner/_work/Tomer-Joseph_project/Tomer-Joseph_project
+      run: cd /home/ec2-user/tomer-actions-runner/_work/Tomer-Joseph_project/Tomer-Joseph_project-test
 
     - name: pwd
       run: pwd 

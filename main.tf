@@ -20,6 +20,7 @@ resource "kubernetes_config_map" "aws_auth" {
         username: aws16
     EOF
   }
+  depends_on = [ terraform_data.installIngress]
 }
 
 
